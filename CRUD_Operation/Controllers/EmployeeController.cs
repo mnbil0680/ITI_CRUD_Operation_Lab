@@ -47,7 +47,7 @@ namespace CRUD_Operation.Controllers
                 .Include(e => e.Manager)
                 .Include(e => e.Training)
                 .ToList();
-            return View(employees);
+            return View("ListAll", employees);
         }
 
         // GET: Employee/Details/5
