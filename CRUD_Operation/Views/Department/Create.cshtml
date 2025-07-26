@@ -1,0 +1,599 @@
+﻿@model CRUD_Operation.Controllers.CreateDepartmentViewModel
+@{
+    ViewData["Title"] = "Create New Department";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-building-plus me-3"></i>
+                Create New Department
+            </h1>
+            <p class="text-muted mb-0">Add a new department to the organization</p>
+        </div>
+        <div class="page-actions">
+            <a asp-action="ListAll" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Department Creation Form -->
+<div class="form-container">
+    <form asp-action="Create" method="post" class="department-form" novalidate>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <!-- Basic Information Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-building me-2"></i>Basic Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Department Name -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Name" class="form-label required">Department Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-building"></i></span>
+                            <input asp-for="Name" class="form-control" placeholder="Information Technology" required />
+                        </div>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                        <small class="form-text text-muted">Enter the full name of the department</small>
+                    </div>
+
+                    <!-- Department Code -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Code" class="form-label required">Department Code</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                            <input asp-for="Code" class="form-control" placeholder="IT001" required maxlength="20" />
+                        </div>
+                        <span asp-validation-for="Code" class="text-danger"></span>
+                        <small class="form-text text-muted">Unique identifier for the department (e.g., IT001, HR001)</small>
+                    </div>
+
+                    <!-- Department Description -->
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="Description" class="form-label">Department Description</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-journal-text"></i></span>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe the department's role, responsibilities, and objectives (optional)"></textarea>
+                        </div>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                        <small class="form-text text-muted">Maximum 500 characters</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Information Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-currency-dollar me-2"></i>Financial Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Budget -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Budget" class="form-label required">Annual Budget</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                            <input asp-for="Budget" type="number" step="0.01" min="0" class="form-control" placeholder="500000.00" required />
+                        </div>
+                        <span asp-validation-for="Budget" class="text-danger"></span>
+                        <small class="form-text text-muted">Enter the allocated annual budget for this department</small>
+                    </div>
+
+                    <!-- Budget Preview -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Budget Preview</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-calculator"></i></span>
+                            <input type="text" id="budgetPreview" class="form-control" readonly placeholder="$0" />
+                        </div>
+                        <small class="form-text text-muted">Formatted budget display</small>
+                    </div>
+                </div>
+
+                <!-- Budget Guidelines -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="budget-guidelines">
+                            <h6 class="text-muted mb-2">Budget Guidelines:</h6>
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <div class="guideline-item">
+                                        <span class="badge bg-info">Small Dept.</span>
+                                        <small class="d-block text-muted">$100K - $300K</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="guideline-item">
+                                        <span class="badge bg-warning">Medium Dept.</span>
+                                        <small class="d-block text-muted">$300K - $700K</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="guideline-item">
+                                        <span class="badge bg-success">Large Dept.</span>
+                                        <small class="d-block text-muted">$700K - $1.5M</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="guideline-item">
+                                        <span class="badge bg-danger">Enterprise</span>
+                                        <small class="d-block text-muted">$1.5M+</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Department Type & Category Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-diagram-3 me-2"></i>Department Classification
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Predicted Department Type -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Predicted Type</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lightbulb"></i></span>
+                            <input type="text" id="predictedType" class="form-control" readonly placeholder="Will be predicted based on name" />
+                        </div>
+                        <small class="form-text text-muted">Automatically detected based on department name</small>
+                    </div>
+
+                    <!-- Expected Employee Count -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Expected Team Size</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-people"></i></span>
+                            <select class="form-select" id="expectedSize">
+                                <option value="">Select expected size (optional)</option>
+                                <option value="1-5">Small Team (1-5 employees)</option>
+                                <option value="6-15">Medium Team (6-15 employees)</option>
+                                <option value="16-50">Large Team (16-50 employees)</option>
+                                <option value="51+">Enterprise Team (51+ employees)</option>
+                            </select>
+                        </div>
+                        <small class="form-text text-muted">Estimated number of employees for planning purposes</small>
+                    </div>
+                </div>
+
+                <!-- Department Type Icons Preview -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="type-preview">
+                            <h6 class="text-muted mb-3">Department Types:</h6>
+                            <div class="row text-center">
+                                <div class="col-md-2 col-4 mb-2">
+                                    <div class="type-item">
+                                        <i class="bi bi-laptop display-6 text-primary"></i>
+                                        <small class="d-block">Technology</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-4 mb-2">
+                                    <div class="type-item">
+                                        <i class="bi bi-people display-6 text-success"></i>
+                                        <small class="d-block">HR</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-4 mb-2">
+                                    <div class="type-item">
+                                        <i class="bi bi-calculator display-6 text-warning"></i>
+                                        <small class="d-block">Finance</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-4 mb-2">
+                                    <div class="type-item">
+                                        <i class="bi bi-megaphone display-6 text-info"></i>
+                                        <small class="d-block">Marketing</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-4 mb-2">
+                                    <div class="type-item">
+                                        <i class="bi bi-gear-wide-connected display-6 text-danger"></i>
+                                        <small class="d-block">Operations</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-4 mb-2">
+                                    <div class="type-item">
+                                        <i class="bi bi-building display-6 text-secondary"></i>
+                                        <small class="d-block">General</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setup Information Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="bi bi-gear me-2"></i>Setup Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="setup-info bg-light p-3 rounded">
+                            <h6 class="text-muted mb-3">After Creation:</h6>
+                            <ul class="list-unstyled mb-0">
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Department will be created with empty employee list</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Budget will be allocated for future use</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Department head can be assigned later</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Employees can be assigned to this department</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Projects can be linked to this department</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-4">
+                    <div class="btn-group-custom">
+                        <button type="submit" class="btn btn-success btn-lg me-3">
+                            <i class="bi bi-check-circle me-2"></i>Create Department
+                        </button>
+                        <a asp-action="ListAll" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    /* Form Container */
+    .form-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .department-form {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Card Styling */
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+        }
+
+    .card-header {
+        border-bottom: none;
+        font-weight: 600;
+        padding: 1.5rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    /* Form Controls */
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+    }
+
+        .form-label.required::after {
+            content: " *";
+            color: #e53e3e;
+        }
+
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+    .input-group-text {
+        background: #f7fafc;
+        border: 2px solid #e2e8f0;
+        border-right: none;
+        color: #4a5568;
+        font-weight: 500;
+    }
+
+    .input-group .form-control, .input-group .form-select {
+        border-left: none;
+    }
+
+    .input-group:focus-within .input-group-text {
+        border-color: #667eea;
+        background: #edf2f7;
+    }
+
+    /* Validation Styling */
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .form-control.is-invalid, .form-select.is-invalid {
+        border-color: #e53e3e;
+    }
+
+    .alert-danger {
+        border-radius: 10px;
+        margin-bottom: 2rem;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        margin-top: 3rem;
+    }
+
+    .btn-group-custom {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        border-radius: 8px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+    /* Helper Text */
+    .form-text {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Budget Guidelines */
+    .budget-guidelines {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .guideline-item {
+        padding: 0.5rem;
+    }
+
+    /* Type Preview */
+    .type-preview {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+    }
+
+    .type-item {
+        padding: 0.5rem;
+        transition: transform 0.2s ease;
+    }
+
+        .type-item:hover {
+            transform: scale(1.1);
+        }
+
+    /* Setup Info */
+    .setup-info {
+        border-left: 4px solid #28a745;
+    }
+
+        .setup-info ul li {
+            padding: 0.25rem 0;
+        }
+
+    /* Budget Preview */
+    #budgetPreview {
+        background-color: #f8f9fa;
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    #predictedType {
+        background-color: #f8f9fa;
+        color: #667eea;
+        font-weight: bold;
+    }
+
+    
+
+    </style>
+
+<!-- JavaScript for Form Enhancement -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameInput = document.getElementById('Name');
+        const budgetInput = document.getElementById('Budget');
+        const budgetPreview = document.getElementById('budgetPreview');
+        const predictedType = document.getElementById('predictedType');
+
+        // Format budget display
+        function formatBudget() {
+            const budget = parseFloat(budgetInput.value) || 0;
+            budgetPreview.value = '$' + budget.toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
+
+        // Predict department type based on name
+        function predictDepartmentType() {
+            const name = nameInput.value.toLowerCase();
+            let type = 'General Department';
+            let icon = 'bi-building';
+
+            if (name.includes('it') || name.includes('technology') || name.includes('software') || name.includes('development')) {
+                type = 'Technology Department';
+                icon = 'bi-laptop';
+            } else if (name.includes('hr') || name.includes('human') || name.includes('people')) {
+                type = 'Human Resources Department';
+                icon = 'bi-people';
+            } else if (name.includes('finance') || name.includes('accounting') || name.includes('financial')) {
+                type = 'Finance Department';
+                icon = 'bi-calculator';
+            } else if (name.includes('marketing') || name.includes('sales') || name.includes('promotion')) {
+                type = 'Marketing & Sales Department';
+                icon = 'bi-megaphone';
+            } else if (name.includes('operations') || name.includes('ops') || name.includes('operational')) {
+                type = 'Operations Department';
+                icon = 'bi-gear-wide-connected';
+            } else if (name.includes('legal') || name.includes('law') || name.includes('compliance')) {
+                type = 'Legal Department';
+                icon = 'bi-shield-check';
+            } else if (name.includes('research') || name.includes('development') || name.includes('r&d')) {
+                type = 'Research & Development';
+                icon = 'bi-lightbulb';
+            }
+
+            predictedType.value = type;
+        }
+
+        // Event listeners
+        budgetInput.addEventListener('input', formatBudget);
+        budgetInput.addEventListener('change', formatBudget);
+        nameInput.addEventListener('input', predictDepartmentType);
+        nameInput.addEventListener('change', predictDepartmentType);
+
+        // Initial calls
+        formatBudget();
+        predictDepartmentType();
+
+        // Form validation enhancement
+        const form = document.querySelector('.department-form');
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please fill in all required fields.');
+                return false;
+            }
+
+            // Check for reasonable budget
+            const budget = parseFloat(budgetInput.value) || 0;
+            if (budget < 1000) {
+                if (!confirm('The budget seems very low. Are you sure you want to continue?')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        });
+
+        // Remove invalid class on input
+        const inputs = form.querySelectorAll('.form-control, .form-select');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+            });
+        });
+
+        // Auto-generate department code
+        nameInput.addEventListener('input', function() {
+            const codeInput = document.getElementById('Code');
+            if (!codeInput.value) {
+                const name = this.value;
+                const words = name.trim().split(/\s+/);
+                let code = '';
+
+                if (words.length >= 2) {
+                    code = words.slice(0, 2).map(word => word.substring(0, 2).toUpperCase()).join('') + '001';
+                } else if (words.length === 1) {
+                    code = words[0].substring(0, 3).toUpperCase() + '001';
+                }
+
+                if (code.length >= 4) {
+                    codeInput.value = code;
+                }
+            }
+        });
+    });
+</script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

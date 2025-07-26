@@ -1,0 +1,714 @@
+﻿@model CRUD_Operation.Controllers.EditDepartmentViewModel
+@{
+    ViewData["Title"] = "Edit Department";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-building-gear me-3"></i>
+                Edit Department
+            </h1>
+            <p class="text-muted mb-0">Update department information - ID: @Model.ID</p>
+        </div>
+        <div class="page-actions">
+            <a asp-action="Details" asp-route-id="@Model.ID" class="btn btn-info btn-lg">
+                <i class="bi bi-eye me-2"></i>View Details
+            </a>
+            <a asp-action="ListAll" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Department Edit Form -->
+<div class="form-container">
+    <form asp-action="Edit" method="post" class="department-form" novalidate>
+        <input asp-for="ID" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <!-- Basic Information Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-building me-2"></i>Basic Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Department Name -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Name" class="form-label required">Department Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-building"></i></span>
+                            <input asp-for="Name" class="form-control" placeholder="@Model.Name" required />
+                        </div>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                        <small class="form-text text-muted">Enter the full name of the department</small>
+                    </div>
+
+                    <!-- Department Code -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Code" class="form-label required">Department Code</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                            <input asp-for="Code" class="form-control" placeholder="@Model.Code" required maxlength="20" />
+                        </div>
+                        <span asp-validation-for="Code" class="text-danger"></span>
+                        <small class="form-text text-muted">Unique identifier for the department (e.g., IT001, HR001)</small>
+                    </div>
+
+                    <!-- Department Type Preview -->
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Department Type</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lightbulb"></i></span>
+                            <input type="text" id="predictedType" class="form-control" readonly placeholder="Will be predicted based on name" />
+                        </div>
+                        <small class="form-text text-muted">Automatically detected based on department name</small>
+                    </div>
+
+                    <!-- Department Description -->
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="Description" class="form-label">Department Description</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-journal-text"></i></span>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="@Model.Description"></textarea>
+                        </div>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                        <small class="form-text text-muted">Maximum 500 characters</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Information Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-currency-dollar me-2"></i>Financial Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Budget -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Budget" class="form-label required">Annual Budget</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                            <input asp-for="Budget" type="number" step="0.01" min="0" class="form-control"
+                                   placeholder="@Model.Budget.ToString("F2")" required />
+                        </div>
+                        <span asp-validation-for="Budget" class="text-danger"></span>
+                        <small class="form-text text-muted">Enter the allocated annual budget for this department</small>
+                    </div>
+
+                    <!-- Budget Preview -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Budget Preview</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-calculator"></i></span>
+                            <input type="text" id="budgetPreview" class="form-control" readonly placeholder="$0" />
+                        </div>
+                        <small class="form-text text-muted">Formatted budget display</small>
+                    </div>
+                </div>
+
+                <!-- Budget Comparison -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="budget-comparison">
+                            <h6 class="text-muted mb-2">Budget Comparison:</h6>
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <div class="comparison-item">
+                                        <span class="badge bg-info">Current Budget</span>
+                                        <strong class="d-block text-info mt-1">$@Model.Budget.ToString("N0")</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="comparison-item">
+                                        <span class="badge bg-warning">New Budget</span>
+                                        <strong class="d-block text-warning mt-1" id="newBudgetDisplay">$@Model.Budget.ToString("N0")</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="comparison-item">
+                                        <span class="badge bg-secondary">Difference</span>
+                                        <strong class="d-block mt-1" id="budgetDifference">$0</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status & Analytics Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Department Status & Analytics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Current Employee Count -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Current Employee Count</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-people"></i></span>
+                            <input type="text" class="form-control" readonly value="Loading..." id="currentEmployeeCount" />
+                        </div>
+                        <small class="form-text text-muted">Number of employees currently assigned to this department</small>
+                    </div>
+
+                    <!-- Budget per Employee -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Budget per Employee</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-calculator"></i></span>
+                            <input type="text" id="budgetPerEmployee" class="form-control" readonly placeholder="Will be calculated" />
+                        </div>
+                        <small class="form-text text-muted">Budget divided by current employee count</small>
+                    </div>
+                </div>
+
+                <!-- Department Performance Indicators -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="performance-indicators">
+                            <h6 class="text-muted mb-3">Performance Indicators:</h6>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="indicator-item text-center p-2">
+                                        <i class="bi bi-people-fill display-6 text-primary"></i>
+                                        <small class="d-block">Staff Utilization</small>
+                                        <div class="progress mt-2">
+                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 75%" id="staffProgress">
+                                                75%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="indicator-item text-center p-2">
+                                        <i class="bi bi-currency-dollar display-6 text-success"></i>
+                                        <small class="d-block">Budget Status</small>
+                                        <div class="progress mt-2">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 85%" id="budgetProgress">
+                                                85%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="indicator-item text-center p-2">
+                                        <i class="bi bi-graph-up display-6 text-warning"></i>
+                                        <small class="d-block">Growth Rate</small>
+                                        <div class="progress mt-2">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 60%" id="growthProgress">
+                                                60%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="indicator-item text-center p-2">
+                                        <i class="bi bi-star-fill display-6 text-info"></i>
+                                        <small class="d-block">Efficiency</small>
+                                        <div class="progress mt-2">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 90%" id="efficiencyProgress">
+                                                90%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Log Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history me-2"></i>Change Summary
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="change-log bg-light p-3 rounded">
+                            <h6 class="text-muted mb-3">Changes will be tracked:</h6>
+                            <ul class="list-unstyled mb-0" id="changesList">
+                                <li><i class="bi bi-info-circle text-info me-2"></i>No changes detected yet</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-4">
+                    <div class="btn-group-custom">
+                        <button type="submit" class="btn btn-success btn-lg me-3">
+                            <i class="bi bi-check-circle me-2"></i>Update Department
+                        </button>
+                        <a asp-action="Details" asp-route-id="@Model.ID" class="btn btn-info btn-lg me-3">
+                            <i class="bi bi-eye me-2"></i>View Details
+                        </a>
+                        <a asp-action="ListAll" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    /* Form Container */
+    .form-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .department-form {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Card Styling */
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+        }
+
+    .card-header {
+        border-bottom: none;
+        font-weight: 600;
+        padding: 1.5rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    /* Form Controls */
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+    }
+
+        .form-label.required::after {
+            content: " *";
+            color: #e53e3e;
+        }
+
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+    .input-group-text {
+        background: #f7fafc;
+        border: 2px solid #e2e8f0;
+        border-right: none;
+        color: #4a5568;
+        font-weight: 500;
+    }
+
+    .input-group .form-control, .input-group .form-select {
+        border-left: none;
+    }
+
+    .input-group:focus-within .input-group-text {
+        border-color: #667eea;
+        background: #edf2f7;
+    }
+
+    /* Validation Styling */
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .form-control.is-invalid, .form-select.is-invalid {
+        border-color: #e53e3e;
+    }
+
+    .alert-danger {
+        border-radius: 10px;
+        margin-bottom: 2rem;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        margin-top: 3rem;
+    }
+
+    .btn-group-custom {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        border-radius: 8px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+    /* Helper Text */
+    .form-text {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Budget Comparison */
+    .budget-comparison {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .comparison-item {
+        padding: 0.5rem;
+    }
+
+    /* Performance Indicators */
+    .performance-indicators {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+    }
+
+    .indicator-item {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: white;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Change Log */
+    .change-log {
+        border-left: 4px solid #ffc107;
+    }
+
+        .change-log ul li {
+            padding: 0.25rem 0;
+        }
+
+    /* Special Input Styling */
+    #budgetPreview, #predictedType, #currentEmployeeCount, #budgetPerEmployee {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: bold;
+    }
+
+    /* Progress Bars */
+    .progress {
+        height: 8px;
+        border-radius: 4px;
+    }
+
+    .progress-bar {
+        border-radius: 4px;
+        font-size: 0.7rem;
+    }
+
+   
+
+    </style>
+
+<!-- JavaScript for Form Enhancement and Change Tracking -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameInput = document.getElementById('Name');
+        const codeInput = document.getElementById('Code');
+        const budgetInput = document.getElementById('Budget');
+        const budgetPreview = document.getElementById('budgetPreview');
+        const predictedType = document.getElementById('predictedType');
+        const currentEmployeeCount = document.getElementById('currentEmployeeCount');
+        const budgetPerEmployee = document.getElementById('budgetPerEmployee');
+        const newBudgetDisplay = document.getElementById('newBudgetDisplay');
+        const budgetDifference = document.getElementById('budgetDifference');
+        const changesList = document.getElementById('changesList');
+
+        // Store original values for change tracking
+        const originalValues = {
+            name: nameInput.value,
+            code: codeInput.value,
+            budget: parseFloat(budgetInput.value) || 0,
+            description: document.getElementById('Description').value
+        };
+
+        // Format budget display
+        function formatBudget() {
+            const budget = parseFloat(budgetInput.value) || 0;
+            budgetPreview.value = '$' + budget.toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+
+            newBudgetDisplay.textContent = '$' + budget.toLocaleString('en-US');
+
+            // Calculate budget difference
+            const difference = budget - originalValues.budget;
+            const diffText = difference >= 0 ? '+$' + Math.abs(difference).toLocaleString('en-US') : '-$' + Math.abs(difference).toLocaleString('en-US');
+            budgetDifference.textContent = diffText;
+            budgetDifference.className = difference >= 0 ? 'd-block text-success' : 'd-block text-danger';
+
+            // Update budget per employee
+            updateBudgetPerEmployee(budget);
+        }
+
+        // Predict department type based on name
+        function predictDepartmentType() {
+            const name = nameInput.value.toLowerCase();
+            let type = 'General Department';
+
+            if (name.includes('it') || name.includes('technology') || name.includes('software') || name.includes('development')) {
+                type = 'Technology Department';
+            } else if (name.includes('hr') || name.includes('human') || name.includes('people')) {
+                type = 'Human Resources Department';
+            } else if (name.includes('finance') || name.includes('accounting') || name.includes('financial')) {
+                type = 'Finance Department';
+            } else if (name.includes('marketing') || name.includes('sales') || name.includes('promotion')) {
+                type = 'Marketing & Sales Department';
+            } else if (name.includes('operations') || name.includes('ops') || name.includes('operational')) {
+                type = 'Operations Department';
+            } else if (name.includes('legal') || name.includes('law') || name.includes('compliance')) {
+                type = 'Legal Department';
+            } else if (name.includes('research') || name.includes('development') || name.includes('r&d')) {
+                type = 'Research & Development';
+            }
+
+            predictedType.value = type;
+        }
+
+        // Update budget per employee calculation
+        function updateBudgetPerEmployee(budget) {
+            const employeeCountText = currentEmployeeCount.value;
+            const employeeCount = parseInt(employeeCountText) || 0;
+
+            if (employeeCount > 0) {
+                const perEmployee = budget / employeeCount;
+                budgetPerEmployee.value = '$' + perEmployee.toLocaleString('en-US', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                });
+            } else {
+                budgetPerEmployee.value = 'No employees assigned';
+            }
+        }
+
+        // Track changes
+        function trackChanges() {
+            const changes = [];
+
+            if (nameInput.value !== originalValues.name) {
+                changes.push(`Name changed from "${originalValues.name}" to "${nameInput.value}"`);
+            }
+
+            if (codeInput.value !== originalValues.code) {
+                changes.push(`Code changed from "${originalValues.code}" to "${codeInput.value}"`);
+            }
+
+            const currentBudget = parseFloat(budgetInput.value) || 0;
+            if (currentBudget !== originalValues.budget) {
+                changes.push(`Budget changed from $${originalValues.budget.toLocaleString()} to $${currentBudget.toLocaleString()}`);
+            }
+
+            const currentDescription = document.getElementById('Description').value;
+            if (currentDescription !== originalValues.description) {
+                changes.push(`Description updated`);
+            }
+
+            // Update changes list
+            if (changes.length > 0) {
+                changesList.innerHTML = changes.map(change =>
+                    `<li><i class="bi bi-arrow-right text-warning me-2"></i>${change}</li>`
+                ).join('');
+            } else {
+                changesList.innerHTML = '<li><i class="bi bi-info-circle text-info me-2"></i>No changes detected yet</li>';
+            }
+        }
+
+        // Simulate loading employee count (replace with actual API call)
+        setTimeout(() => {
+            currentEmployeeCount.value = '@(ViewBag.EmployeeCount ?? 0)'; // This would come from controller
+            updateBudgetPerEmployee(parseFloat(budgetInput.value) || 0);
+        }, 500);
+
+        // Event listeners
+        budgetInput.addEventListener('input', formatBudget);
+        budgetInput.addEventListener('change', formatBudget);
+        nameInput.addEventListener('input', function() {
+            predictDepartmentType();
+            trackChanges();
+        });
+        codeInput.addEventListener('input', trackChanges);
+        budgetInput.addEventListener('input', trackChanges);
+        document.getElementById('Description').addEventListener('input', trackChanges);
+
+        // Initial calls
+        formatBudget();
+        predictDepartmentType();
+        trackChanges();
+
+        // Form validation enhancement
+        const form = document.querySelector('.department-form');
+
+        // Preserve field values on error
+        const preserveFieldValues = function() {
+            const formData = new FormData(form);
+            localStorage.setItem('departmentEditFormData', JSON.stringify(Object.fromEntries(formData)));
+        };
+
+        // Restore field values from localStorage if there was an error
+        const restoreFieldValues = function() {
+            const savedData = localStorage.getItem('departmentEditFormData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                for (const [key, value] of Object.entries(data)) {
+                    const field = form.querySelector(`[name="${key}"]`);
+                    if (field && field.type !== 'hidden') {
+                        field.value = value;
+                    }
+                }
+                localStorage.removeItem('departmentEditFormData');
+            }
+        };
+
+        // Enhanced form validation
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please fill in all required fields.');
+                return false;
+            }
+
+            // Check for reasonable budget
+            const budget = parseFloat(budgetInput.value) || 0;
+            if (budget < 1000) {
+                if (!confirm('The budget seems very low. Are you sure you want to continue?')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+
+            preserveFieldValues();
+        });
+
+        // Remove invalid class on input
+        const inputs = form.querySelectorAll('.form-control, .form-select');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+            });
+        });
+
+        // Restore values if this is a failed submission
+        if (document.querySelector('.text-danger')) {
+            restoreFieldValues();
+        }
+
+        // Clear localStorage on successful form submission
+        window.addEventListener('beforeunload', function() {
+            if (!document.querySelector('.text-danger')) {
+                localStorage.removeItem('departmentEditFormData');
+            }
+        });
+    });
+</script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

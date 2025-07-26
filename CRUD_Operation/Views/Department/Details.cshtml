@@ -1,0 +1,669 @@
+﻿@model CRUD_Operation.Models.Department
+@{
+    ViewData["Title"] = $"{Model?.Name} - Department Details";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-building me-3"></i>
+                Department Details
+            </h1>
+            <p class="text-muted mb-0">Complete information about @Model?.Name department</p>
+        </div>
+        <div class="page-actions">
+            <a asp-action="Edit" asp-route-id="@Model?.ID" class="btn btn-warning btn-lg">
+                <i class="bi bi-pencil me-2"></i>Edit Department
+            </a>
+            <a asp-action="ListAll" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+@if (Model != null)
+{
+    <!-- Department Profile Header -->
+    <div class="department-profile-header mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center">
+                        <div class="profile-image-container">
+                            <div class="profile-placeholder">
+                                @Model.Name.First()
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <span class="badge bg-primary department-code">@Model.Code</span>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="department-header-info">
+                            <h2 class="department-name">@Model.Name</h2>
+                            <p class="department-description">
+                                <i class="bi bi-journal-text me-2"></i>@(Model.Description ?? "No description available")
+                            </p>
+                            <div class="department-badges">
+                                <span class="badge bg-success me-2">
+                                    <i class="bi bi-people me-1"></i>@Model.CountEmployees Employees
+                                </span>
+                                <span class="badge bg-warning me-2">
+                                    <i class="bi bi-currency-dollar me-1"></i>$@Model.Budget.ToString("N0") Budget
+                                </span>
+                                @if (Model.CountEmployees > 0)
+                                {
+                                    <span class="badge bg-info me-2">
+                                        <i class="bi bi-calculator me-1"></i>$@((Model.Budget / Model.CountEmployees).ToString("N0")) per employee
+                                    </span>
+                                }
+                            </div>
+                            <div class="department-quick-stats mt-3">
+                                <div class="row text-center">
+                                    <div class="col-md-3">
+                                        <div class="stat-item">
+                                            <h4>@Model.CountEmployees</h4>
+                                            <small class="text-muted">Active Employees</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="stat-item">
+                                            <h4>$@Model.Budget.ToString("N0")</h4>
+                                            <small class="text-muted">Total Budget</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="stat-item">
+                                            <h4>@Math.Round((DateTime.Now - Model.CreatedOn).TotalDays / 365.25, 1)</h4>
+                                            <small class="text-muted">Years Active</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="stat-item">
+                                            <h4>@Model.CreatedOn.ToString("MMM yyyy")</h4>
+                                            <small class="text-muted">Established</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Information Sections -->
+    <div class="row">
+        <!-- Basic Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-building me-2"></i>Basic Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-group">
+                        <label class="info-label">Department Name</label>
+                        <p class="info-value">@Model.Name</p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Department Code</label>
+                        <p class="info-value">
+                            <span class="badge bg-primary">@Model.Code</span>
+                        </p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Established Date</label>
+                        <p class="info-value">@Model.CreatedOn.ToString("MMMM dd, yyyy")</p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Years Active</label>
+                        <p class="info-value">@Math.Round((DateTime.Now - Model.CreatedOn).TotalDays / 365.25, 1) years</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-currency-dollar me-2"></i>Financial Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-group">
+                        <label class="info-label">Total Budget</label>
+                        <p class="info-value text-success fw-bold">$@Model.Budget.ToString("N2")</p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Budget per Employee</label>
+                        <p class="info-value">
+                            @if (Model.CountEmployees > 0)
+                            {
+                                <span class="text-info fw-bold">$@((Model.Budget / Model.CountEmployees).ToString("N2"))</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">No employees assigned</span>
+                            }
+                        </p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Budget Status</label>
+                        <p class="info-value">
+                            @if (Model.Budget > 0)
+                            {
+                                <span class="badge bg-success">Active Budget</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">No Budget Allocated</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-people me-2"></i>Employee Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-group">
+                        <label class="info-label">Total Employees</label>
+                        <p class="info-value">
+                            <span class="badge bg-success employee-count-large">@Model.CountEmployees</span>
+                        </p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Department Status</label>
+                        <p class="info-value">
+                            @if (Model.CountEmployees > 0)
+                            {
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>Active Department
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>No Staff Assigned
+                                </span>
+                            }
+                        </p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Capacity Utilization</label>
+                        <p class="info-value">
+                            @if (Model.CountEmployees > 0)
+                            {
+                                var utilizationPercentage = Math.Min((Model.CountEmployees / 50.0) * 100, 100); // Assuming max 50 employees per department
+                                <div class="progress">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: @(utilizationPercentage)%"
+                                         aria-valuenow="@utilizationPercentage" aria-valuemin="0" aria-valuemax="100">
+                                        @Model.CountEmployees employees
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-muted">No employees to calculate</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Management Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-diagram-3 me-2"></i>Management Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-group">
+                        <label class="info-label">Department Head</label>
+                        <p class="info-value">
+                            @if (Model.EmployeesList != null && Model.EmployeesList.Any(e => e.Position.Contains("Manager") || e.Position.Contains("Head") || e.Position.Contains("Director")))
+                            {
+                                var head = Model.EmployeesList.FirstOrDefault(e => e.Position.Contains("Manager") || e.Position.Contains("Head") || e.Position.Contains("Director"));
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-person-badge me-1"></i>@head.FirstName @head.LastName
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">No head assigned</span>
+                            }
+                        </p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Reporting Structure</label>
+                        <p class="info-value">
+                            @if (Model.CountEmployees > 0)
+                            {
+                                <span class="text-info">Hierarchical structure with @Model.CountEmployees members</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">No reporting structure</span>
+                            }
+                        </p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Department Type</label>
+                        <p class="info-value">
+                            <span class="badge bg-primary">
+                                @if (Model.Name.ToLower().Contains("it") || Model.Name.ToLower().Contains("technology"))
+                                {
+                                    <i class="bi bi-laptop me-1"></i>
+
+                                    <span>Technology</span>
+                                }
+                                else if (Model.Name.ToLower().Contains("hr") || Model.Name.ToLower().Contains("human"))
+                                {
+                                    <i class="bi bi-people me-1"></i>
+
+                                    <span>Human Resources</span>
+                                }
+                                else if (Model.Name.ToLower().Contains("finance") || Model.Name.ToLower().Contains("accounting"))
+                                {
+                                    <i class="bi bi-calculator me-1"></i>
+
+                                    <span>Financial</span>
+                                }
+                                else if (Model.Name.ToLower().Contains("marketing") || Model.Name.ToLower().Contains("sales"))
+                                {
+                                    <i class="bi bi-megaphone me-1"></i>
+
+                                    <span>Marketing & Sales</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-building me-1"></i>
+
+                                    <span>Operational</span>
+                                }
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description & Additional Information -->
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <div class="col-12 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-journal-text me-2"></i>Department Description
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">@Model.Description</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Employee List (if available) -->
+        @if (Model.EmployeesList != null && Model.EmployeesList.Any())
+        {
+            <div class="col-12 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-people me-2"></i>Department Employees (@Model.EmployeesList.Count)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @foreach (var employee in Model.EmployeesList.Take(8)) // Show first 8 employees
+                            {
+                                <div class="col-md-3 mb-3">
+                                    <div class="employee-card">
+                                        <div class="employee-avatar-small">
+                                            @if (!string.IsNullOrEmpty(employee.ImagePath))
+                                            {
+                                                <img src="@employee.ImagePath" alt="@employee.FirstName @employee.LastName" />
+                                            }
+                                            else
+                                            {
+                                                <div class="avatar-placeholder-small">
+                                                    @employee.FirstName.First()@employee.LastName.First()
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="employee-info-small">
+                                            <strong>@employee.FirstName @employee.LastName</strong>
+                                            <small class="d-block text-muted">@employee.Position</small>
+                                            <a asp-controller="Employee" asp-action="Details" asp-route-id="@employee.ID"
+                                               class="btn btn-sm btn-outline-primary mt-1">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        @if (Model.EmployeesList.Count > 8)
+                        {
+                            <div class="text-center mt-3">
+                                <a asp-controller="Employee" asp-action="ListAll" class="btn btn-outline-primary">
+                                    <i class="bi bi-people me-2"></i>View All @Model.EmployeesList.Count Employees
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- System Information -->
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>System Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="info-group">
+                                <label class="info-label">Created On</label>
+                                <p class="info-value">@Model.CreatedOn.ToString("MMM dd, yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-group">
+                                <label class="info-label">Created By</label>
+                                <p class="info-value">@Model.CreatedBy</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-group">
+                                <label class="info-label">Last Modified</label>
+                                <p class="info-value">@(Model.ModifiedOn?.ToString("MMM dd, yyyy HH:mm") ?? "Never")</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-group">
+                                <label class="info-label">Modified By</label>
+                                <p class="info-value">@(Model.ModifiedBy ?? "N/A")</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-section">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-4">
+                <h5 class="mb-3">Actions</h5>
+                <div class="btn-group-custom">
+                    <a asp-action="Edit" asp-route-id="@Model.ID" class="btn btn-warning btn-lg me-3">
+                        <i class="bi bi-pencil me-2"></i>Edit Department
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.ID" class="btn btn-danger btn-lg me-3">
+                        <i class="bi bi-trash me-2"></i>Delete Department
+                    </a>
+                    <a asp-action="ListAll" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-list me-2"></i>View All Departments
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Department Not Found -->
+    <div class="text-center py-5">
+        <i class="bi bi-building-x display-1 text-muted"></i>
+        <h3 class="mt-3">Department Not Found</h3>
+        <p class="text-muted">The department you're looking for doesn't exist or has been removed.</p>
+        <a asp-action="ListAll" class="btn btn-primary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Department List
+        </a>
+    </div>
+}
+
+<!-- Custom Styles -->
+<style>
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    /* Department Profile Header */
+    .department-profile-header {
+        margin-bottom: 2rem;
+    }
+
+    .profile-image-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .profile-placeholder {
+        width: 150px;
+        height: 150px;
+        border-radius: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 4rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin: 0 auto;
+    }
+
+    .department-code {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .department-name {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .department-description {
+        font-size: 1.25rem;
+        color: #718096;
+        margin-bottom: 1rem;
+    }
+
+    .department-badges .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .department-quick-stats {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .stat-item h4 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0;
+    }
+
+    .employee-count-large {
+        font-size: 1.5rem;
+        padding: 0.75rem 1rem;
+    }
+
+    /* Employee Cards */
+    .employee-card {
+        text-align: center;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        transition: transform 0.2s ease;
+    }
+
+        .employee-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+    .employee-avatar-small img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #e2e8f0;
+    }
+
+    .avatar-placeholder-small {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin: 0 auto;
+    }
+
+    .employee-info-small strong {
+        font-size: 0.9rem;
+        color: #2d3748;
+    }
+
+    /* Information Cards */
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+        }
+
+    .card-header {
+        border-bottom: none;
+        font-weight: 600;
+    }
+
+    .info-group {
+        margin-bottom: 1.5rem;
+    }
+
+        .info-group:last-child {
+            margin-bottom: 0;
+        }
+
+    .info-label {
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        color: #2d3748;
+        margin-bottom: 0;
+        line-height: 1.5;
+    }
+
+        .info-value a {
+            color: #667eea;
+            transition: color 0.2s ease;
+        }
+
+            .info-value a:hover {
+                color: #5a67d8;
+            }
+
+    /* Action Section */
+    .action-section {
+        margin-top: 3rem;
+    }
+
+    .btn-group-custom {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+   
+
+   
+
+   
+    /* Badge Styling */
+    .badge {
+        border-radius: 8px;
+        font-weight: 500;
+    }
+
+        .badge i {
+            margin-right: 0.25rem;
+        }
+
+    /* Progress Bar */
+    .progress {
+        height: 25px;
+        border-radius: 8px;
+    }
+
+    .progress-bar {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+</style>
+

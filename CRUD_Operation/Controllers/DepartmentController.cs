@@ -184,28 +184,68 @@ namespace CRUD_Operation.Controllers
         // POST: Department/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(int id, bool forceDelete = false)
         {
-            var department = db.Departments.Find(id);
-            if (department == null || department.IsDeleted)
-                return NotFound();
-
-            // Check if department has employees
-            var hasEmployees = db.Employees.Any(e => e.DepartmentID == id && !e.IsDeleted);
-            if (hasEmployees)
+            try
             {
-                TempData["Error"] = "Cannot delete department because it has active employees. Please reassign or remove employees first.";
+                var department = db.Departments
+                    .Include(d => d.EmployeesList)
+                    .FirstOrDefault(d => d.ID == id);
+
+                if (department == null || department.IsDeleted)
+                {
+                    TempData["Error"] = "Department not found or already deleted.";
+                    return RedirectToAction(nameof(ListAll));
+                }
+
+                // Get employee count
+                var employeeCount = db.Employees.Count(e => e.DepartmentID == id && !e.IsDeleted);
+
+                // If department has employees and force delete is not checked
+                if (employeeCount > 0 && !forceDelete)
+                {
+                    TempData["Error"] = $"Department has {employeeCount} active employee(s). Check 'Force Delete' to proceed or reassign employees first.";
+                    return RedirectToAction(nameof(Delete), new { id });
+                }
+
+                // If force delete or no employees, proceed with deletion
+                if (employeeCount > 0 && forceDelete)
+                {
+                    // Unassign employees from this department
+                    var employees = db.Employees.Where(e => e.DepartmentID == id && !e.IsDeleted).ToList();
+                    foreach (var employee in employees)
+                    {
+                        employee.DepartmentID = null; // Unassign department
+                    }
+                }
+
+                // Soft delete the department
+                department.IsDeleted = true;
+                department.DeleteTime = DateTime.Now;
+
+                // Save all changes
+                db.SaveChanges();
+
+                // Set success message
+                if (employeeCount > 0 && forceDelete)
+                {
+                    TempData["Success"] = $"Department '{department.Name}' deleted successfully! {employeeCount} employee(s) were unassigned from the department.";
+                }
+                else
+                {
+                    TempData["Success"] = $"Department '{department.Name}' deleted successfully!";
+                }
+
+                // Redirect to ListAll page
+                return RedirectToAction(nameof(ListAll));
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"An error occurred while deleting the department: {ex.Message}";
                 return RedirectToAction(nameof(Delete), new { id });
             }
-
-            // Soft delete
-            department.IsDeleted = true;
-            department.DeleteTime = DateTime.Now;
-            db.SaveChanges();
-
-            TempData["Success"] = "Department deleted successfully!";
-            return RedirectToAction(nameof(ListAll));
         }
+
     }
 
     // ViewModel for Create action to handle model binding
