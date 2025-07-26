@@ -1,7 +1,9 @@
 ﻿using CRUD_Operation.Database;
 using CRUD_Operation.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace CRUD_Operation.Controllers
 {
@@ -15,7 +17,6 @@ namespace CRUD_Operation.Controllers
         }
 
         // GET: Employee
-        // GET: Employee
         public IActionResult Index()
         {
             var employees = db.Employees
@@ -24,7 +25,7 @@ namespace CRUD_Operation.Controllers
                 .Include(e => e.Project)
                 .Include(e => e.Manager)
                 .Include(e => e.Training)
-                .Take(2) // Limit to 6 for the landing page
+                .Take(2)
                 .ToList();
 
             // Get some statistics for the dashboard
@@ -35,7 +36,6 @@ namespace CRUD_Operation.Controllers
 
             return View(employees);
         }
-
 
         // GET: Employee
         public IActionResult ListAll()
@@ -69,126 +69,96 @@ namespace CRUD_Operation.Controllers
         // GET: Employee/Create
         public IActionResult Create()
         {
+            // Populate dropdown lists for related entities
+            ViewBag.Departments = new SelectList(
+                db.Departments.Where(d => !d.IsDeleted).OrderBy(d => d.Name),
+                "ID", "Name");
+
+            ViewBag.Projects = new SelectList(
+                db.Projects.Where(p => !p.IsDeleted).OrderBy(p => p.Name),
+                "ID", "Name");
+
+            ViewBag.Managers = new SelectList(
+                db.Managers.Where(m => !m.IsDeleted).OrderBy(m => m.FirstName),
+                "ID", "FirstName");
+
+            ViewBag.Trainings = new SelectList(
+                db.Trainings.Where(t => !t.IsDeleted).OrderBy(t => t.Name),
+                "ID", "Name");
+
             return View();
         }
-
-        // In EmployeeController.cs, update the Create action to use the Employee constructor for initialization
 
         // POST: Employee/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Employee employee)
+        public IActionResult Create(CreateEmployeeViewModel model)
         {
             if (ModelState.IsValid)
             {
-                // Optionally load related entities if you want to set navigation properties
-                var project = employee.ProjectID.HasValue ? db.Projects.Find(employee.ProjectID) : null;
-                var manager = employee.MangerID.HasValue ? db.Managers.Find(employee.MangerID) : null;
-                var department = employee.DepartmentID.HasValue ? db.Departments.Find(employee.DepartmentID) : null;
-                var training = employee.TrainingID.HasValue ? db.Trainings.Find(employee.TrainingID) : null;
+                try
+                {
+                    // Use the constructor to initialize the new employee
+                    var newEmployee = new Employee(
+                        model.ImagePath ?? "/images/default-avatar.jpg",
+                        model.EmployeeNumber,
+                        model.FirstName,
+                        model.LastName,
+                        model.Email,
+                        model.PhoneNumber,
+                        model.Address,
+                        model.DateOfBirth,
+                        model.Position,
+                        model.HireDate,
+                        model.Salary,
+                        model.Notes,
+                        model.ProjectID,
+                        null, // Project will be loaded by EF
+                        model.MangerID,
+                        null, // Manager will be loaded by EF
+                        model.DepartmentID,
+                        null, // Department will be loaded by EF
+                        model.TrainingID,
+                        null  // Training will be loaded by EF
+                    );
 
-                // Use the constructor to initialize the new employee
-                var newEmployee = new Employee(
-                    employee.ImagePath,
-                    employee.EmployeeNumber,
-                    employee.FirstName,
-                    employee.LastName,
-                    employee.Email,
-                    employee.PhoneNumber,
-                    employee.Address,
-                    employee.DateOfBirth,
-                    employee.Position,
-                    employee.HireDate,
-                    employee.Salary,
-                    employee.Notes,
-                    employee.ProjectID,
-                    project,
-                    employee.MangerID,
-                    manager,
-                    employee.DepartmentID,
-                    department,
-                    employee.TrainingID,
-                    training
-                );
+                    db.Employees.Add(newEmployee);
+                    db.SaveChanges();
 
-                db.Employees.Add(newEmployee);
-                db.SaveChanges();
-                return RedirectToAction(nameof(Index));
+                    TempData["Success"] = "Employee created successfully!";
+                    return RedirectToAction(nameof(ListAll));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "An error occurred while saving the employee: " + ex.Message);
+                }
             }
-            return View(employee);
+
+            // If we got this far, something failed, redisplay form
+            PopulateDropdowns();
+            return View(model);
         }
 
-        // GET: Employee/Edit/5
-        public IActionResult Edit(int id)
+        private void PopulateDropdowns()
         {
-            var employee = db.Employees.Find(id);
-            if (employee == null || employee.IsDeleted)
-                return NotFound();
+            ViewBag.Departments = new SelectList(
+                db.Departments.Where(d => !d.IsDeleted).OrderBy(d => d.Name),
+                "ID", "Name");
 
-            return View(employee);
+            ViewBag.Projects = new SelectList(
+                db.Projects.Where(p => !p.IsDeleted).OrderBy(p => p.Name),
+                "ID", "Name");
+
+            ViewBag.Managers = new SelectList(
+                db.Managers.Where(m => !m.IsDeleted).OrderBy(m => m.FirstName),
+                "ID", "FirstName");
+
+            ViewBag.Trainings = new SelectList(
+                db.Trainings.Where(t => !t.IsDeleted).OrderBy(t => t.Name),
+                "ID", "Name");
         }
 
-        // POST: Employee/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Employee employee)
-        {
-            if (id != employee.ID)
-                return NotFound();
-
-            if (ModelState.IsValid)
-            {
-                // Optionally load related entities if you want to set navigation properties
-                var project = employee.ProjectID.HasValue ? db.Projects.Find(employee.ProjectID) : null;
-                var manager = employee.MangerID.HasValue ? db.Managers.Find(employee.MangerID) : null;
-                var department = employee.DepartmentID.HasValue ? db.Departments.Find(employee.DepartmentID) : null;
-                var training = employee.TrainingID.HasValue ? db.Trainings.Find(employee.TrainingID) : null;
-
-                // Get the original employee from the database
-                var existing = db.Employees.AsNoTracking().FirstOrDefault(e => e.ID == id && !e.IsDeleted);
-                if (existing == null)
-                    return NotFound();
-
-                // Create a new Employee using the constructor, copying unchanged audit fields
-                var updatedEmployee = new Employee(
-                    employee.ImagePath,
-                    employee.EmployeeNumber,
-                    employee.FirstName,
-                    employee.LastName,
-                    employee.Email,
-                    employee.PhoneNumber,
-                    employee.Address,
-                    employee.DateOfBirth,
-                    employee.Position,
-                    employee.HireDate,
-                    employee.Salary,
-                    employee.Notes,
-                    existing.CreatedOn, // preserve original creation date
-                    existing.CreatedBy, // preserve original creator
-                    DateTime.Now,       // set modified date
-                    employee.ModifiedBy ?? existing.ModifiedBy,
-                    existing.IsDeleted, // preserve deletion status
-                    existing.DeleteTime,
-                    employee.ProjectID,
-                    project,
-                    employee.MangerID,
-                    manager,
-                    employee.DepartmentID,
-                    department,
-                    employee.TrainingID,
-                    training
-                );
-
-                // Set the ID to match the entity being updated
-                typeof(Employee).GetProperty("ID")?.SetValue(updatedEmployee, id);
-
-                db.Entry(updatedEmployee).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(employee);
-        }
-
+        
         // GET: Employee/Delete/5
         public IActionResult Delete(int id)
         {
@@ -211,7 +181,266 @@ namespace CRUD_Operation.Controllers
             employee.IsDeleted = true;
             employee.DeleteTime = DateTime.Now;
             db.SaveChanges();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(ListAll));
         }
+
+
+        // GET: Employee/Edit/5
+        public IActionResult Edit(int id)
+        {
+            var employee = db.Employees
+                .Include(e => e.Department)
+                .Include(e => e.Project)
+                .Include(e => e.Manager)
+                .Include(e => e.Training)
+                .FirstOrDefault(e => e.ID == id);
+
+            if (employee == null || employee.IsDeleted)
+                return NotFound();
+
+            // Map employee to EditEmployeeViewModel
+            var viewModel = new EditEmployeeViewModel
+            {
+                ID = employee.ID,
+                ImagePath = employee.ImagePath,
+                EmployeeNumber = employee.EmployeeNumber,
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
+                Email = employee.Email,
+                PhoneNumber = employee.PhoneNumber,
+                Address = employee.Address,
+                DateOfBirth = employee.DateOfBirth,
+                Position = employee.Position,
+                HireDate = employee.HireDate,
+                Salary = employee.Salary,
+                Notes = employee.Notes,
+                ProjectID = employee.ProjectID,
+                MangerID = employee.MangerID,
+                DepartmentID = employee.DepartmentID,
+                TrainingID = employee.TrainingID
+            };
+
+            PopulateDropdownsWithSelected(employee.DepartmentID, employee.ProjectID, employee.MangerID, employee.TrainingID);
+            return View(viewModel);
+        }
+
+        // POST: Employee/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, EditEmployeeViewModel model)
+        {
+            if (id != model.ID)
+                return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existing = db.Employees.AsNoTracking().FirstOrDefault(e => e.ID == id && !e.IsDeleted);
+                    if (existing == null)
+                        return NotFound();
+
+                    // Create a new Employee using the constructor
+                    var updatedEmployee = new Employee(
+                        model.ImagePath ?? "/images/default-avatar.jpg",
+                        model.EmployeeNumber,
+                        model.FirstName,
+                        model.LastName,
+                        model.Email,
+                        model.PhoneNumber,
+                        model.Address,
+                        model.DateOfBirth,
+                        model.Position,
+                        model.HireDate,
+                        model.Salary,
+                        model.Notes,
+                        existing.CreatedOn,
+                        existing.CreatedBy,
+                        DateTime.Now,
+                        "System",
+                        existing.IsDeleted,
+                        existing.DeleteTime,
+                        model.ProjectID,
+                        null,
+                        model.MangerID,
+                        null,
+                        model.DepartmentID,
+                        null,
+                        model.TrainingID,
+                        null
+                    );
+
+                    // Set the ID using reflection
+                    typeof(Employee).GetProperty("ID")?.SetValue(updatedEmployee, id);
+
+                    db.Entry(updatedEmployee).State = EntityState.Modified;
+                    db.SaveChanges();
+
+                    TempData["Success"] = "Employee updated successfully!";
+                    return RedirectToAction(nameof(ListAll));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "An error occurred while updating the employee: " + ex.Message);
+                }
+            }
+
+            // If we got this far, something failed, redisplay form with existing values
+            PopulateDropdownsWithSelected(model.DepartmentID, model.ProjectID, model.MangerID, model.TrainingID);
+            return View(model);
+        }
+
+        private void PopulateDropdownsWithSelected(int? selectedDepartmentId, int? selectedProjectId, int? selectedManagerId, int? selectedTrainingId)
+        {
+            ViewBag.Departments = new SelectList(
+                db.Departments.Where(d => !d.IsDeleted).OrderBy(d => d.Name),
+                "ID", "Name", selectedDepartmentId);
+
+            ViewBag.Projects = new SelectList(
+                db.Projects.Where(p => !p.IsDeleted).OrderBy(p => p.Name),
+                "ID", "Name", selectedProjectId);
+
+            ViewBag.Managers = new SelectList(
+                db.Managers.Where(m => !m.IsDeleted).OrderBy(m => m.FirstName),
+                "ID", "FirstName", selectedManagerId);
+
+            ViewBag.Trainings = new SelectList(
+                db.Trainings.Where(t => !t.IsDeleted).OrderBy(t => t.Name),
+                "ID", "Name", selectedTrainingId);
+        }
+
+
+
     }
+
+    // ViewModel for Create action to handle model binding
+    public class CreateEmployeeViewModel
+    {
+        [Display(Name = "Profile Image")]
+        [StringLength(500)]
+        public string? ImagePath { get; set; }
+
+        [Required]
+        [Display(Name = "Employee Number")]
+        [StringLength(20)]
+        public string EmployeeNumber { get; set; } = "";
+
+        [Required]
+        [Display(Name = "First Name")]
+        [StringLength(20)]
+        public string FirstName { get; set; } = "";
+
+        [Required]
+        [Display(Name = "Last Name")]
+        [StringLength(50)]
+        public string LastName { get; set; } = "";
+
+        [Required]
+        [EmailAddress]
+        [StringLength(100)]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [Phone]
+        [Display(Name = "Phone Number")]
+        [StringLength(20)]
+        public string PhoneNumber { get; set; } = "";
+
+        [StringLength(200)]
+        public string? Address { get; set; }
+
+        [Required]
+        [Display(Name = "Date of Birth")]
+        [DataType(DataType.Date)]
+        public DateTime DateOfBirth { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string Position { get; set; } = "";
+
+        [Required]
+        [Display(Name = "Hire Date")]
+        [DataType(DataType.Date)]
+        public DateTime HireDate { get; set; } = DateTime.Today;
+
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "Salary must be a positive value")]
+        public double Salary { get; set; }
+
+        [StringLength(2000)]
+        public string? Notes { get; set; }
+
+        public int? ProjectID { get; set; }
+        public int? MangerID { get; set; }
+        public int? DepartmentID { get; set; }
+        public int? TrainingID { get; set; }
+    }
+    // ViewModel for Edit action to handle model binding
+    public class EditEmployeeViewModel
+    {
+        public int ID { get; set; }
+
+        [Display(Name = "Profile Image")]
+        [StringLength(500)]
+        public string? ImagePath { get; set; }
+
+        [Required]
+        [Display(Name = "Employee Number")]
+        [StringLength(20)]
+        public string EmployeeNumber { get; set; } = "";
+
+        [Required]
+        [Display(Name = "First Name")]
+        [StringLength(20)]
+        public string FirstName { get; set; } = "";
+
+        [Required]
+        [Display(Name = "Last Name")]
+        [StringLength(50)]
+        public string LastName { get; set; } = "";
+
+        [Required]
+        [EmailAddress]
+        [StringLength(100)]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [Phone]
+        [Display(Name = "Phone Number")]
+        [StringLength(20)]
+        public string PhoneNumber { get; set; } = "";
+
+        [StringLength(200)]
+        public string? Address { get; set; }
+
+        [Required]
+        [Display(Name = "Date of Birth")]
+        [DataType(DataType.Date)]
+        public DateTime DateOfBirth { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string Position { get; set; } = "";
+
+        [Required]
+        [Display(Name = "Hire Date")]
+        [DataType(DataType.Date)]
+        public DateTime HireDate { get; set; }
+
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "Salary must be a positive value")]
+        public double Salary { get; set; }
+
+        [StringLength(2000)]
+        public string? Notes { get; set; }
+
+        public int? ProjectID { get; set; }
+        public int? MangerID { get; set; }
+        public int? DepartmentID { get; set; }
+        public int? TrainingID { get; set; }
+    }
+
+
+
 }
+

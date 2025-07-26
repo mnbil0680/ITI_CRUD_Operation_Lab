@@ -1,5 +1,546 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model CRUD_Operation.Models.Employee
 @{
+    ViewData["Title"] = $"{Model?.FirstName} {Model?.LastName} - Employee Details";
 }
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-person-circle me-3"></i>
+                Employee Details
+            </h1>
+            <p class="text-muted mb-0">Complete information about @Model?.FirstName @Model?.LastName</p>
+        </div>
+        <div class="page-actions">
+            <a asp-action="Edit" asp-route-id="@Model?.ID" class="btn btn-warning btn-lg">
+                <i class="bi bi-pencil me-2"></i>Edit Employee
+            </a>
+            <a asp-action="ListAll" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+@if (Model != null)
+{
+    <!-- Employee Profile Header -->
+    <div class="employee-profile-header mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center">
+                        <div class="profile-image-container">
+                            @if (!string.IsNullOrEmpty(Model.ImagePath))
+                            {
+                                <img src="@Model.ImagePath" alt="@Model.FirstName @Model.LastName" class="profile-image" />
+                            }
+                            else
+                            {
+                                <div class="profile-placeholder">
+                                    @Model.FirstName.First()@Model.LastName.First()
+                                </div>
+                            }
+                        </div>
+                        <div class="mt-3">
+                            <span class="badge bg-primary employee-number">@Model.EmployeeNumber</span>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="employee-header-info">
+                            <h2 class="employee-name">@Model.FirstName @Model.LastName</h2>
+                            <p class="employee-position">
+                                <i class="bi bi-briefcase me-2"></i>@Model.Position
+                            </p>
+                            <div class="employee-badges">
+                                @if (Model.Department != null)
+                                {
+                                    <span class="badge bg-success me-2">
+                                        <i class="bi bi-building me-1"></i>@Model.Department.Name
+                                    </span>
+                                }
+                                @if (Model.Project != null)
+                                {
+                                    <span class="badge bg-warning me-2">
+                                        <i class="bi bi-kanban me-1"></i>@Model.Project.Name
+                                    </span>
+                                }
+                                @if (Model.Manager != null)
+                                {
+                                    <span class="badge bg-info me-2">
+                                        <i class="bi bi-person-badge me-1"></i>Manager: @Model.Manager.FirstName @Model.Manager.LastName
+                                    </span>
+                                }
+                            </div>
+                            <div class="employee-quick-stats mt-3">
+                                <div class="row text-center">
+                                    <div class="col-md-3">
+                                        <div class="stat-item">
+                                            <h4>@Model.Age</h4>
+                                            <small class="text-muted">Years Old</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="stat-item">
+                                            <h4>@Math.Round((DateTime.Now - Model.HireDate).TotalDays / 365.25, 1)</h4>
+                                            <small class="text-muted">Years of Service</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="stat-item">
+                                            <h4>$@Model.Salary.ToString("N0")</h4>
+                                            <small class="text-muted">Annual Salary</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="stat-item">
+                                            <h4>@Model.CreatedOn.ToString("MMM yyyy")</h4>
+                                            <small class="text-muted">Record Created</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Information Sections -->
+    <div class="row">
+        <!-- Personal Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person me-2"></i>Personal Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-group">
+                        <label class="info-label">Full Name</label>
+                        <p class="info-value">@Model.FirstName @Model.LastName</p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Date of Birth</label>
+                        <p class="info-value">@Model.DateOfBirth.ToString("MMMM dd, yyyy")</p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Age</label>
+                        <p class="info-value">@Model.Age years old</p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Address</label>
+                        <p class="info-value">@(Model.Address ?? "Not provided")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-envelope me-2"></i>Contact Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-group">
+                        <label class="info-label">Email Address</label>
+                        <p class="info-value">
+                            <a href="mailto:@Model.Email" class="text-decoration-none">
+                                <i class="bi bi-envelope me-1"></i>@Model.Email
+                            </a>
+                        </p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Phone Number</label>
+                        <p class="info-value">
+                            <a href="tel:@Model.PhoneNumber" class="text-decoration-none">
+                                <i class="bi bi-telephone me-1"></i>@Model.PhoneNumber
+                            </a>
+                        </p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Employee Number</label>
+                        <p class="info-value">
+                            <span class="badge bg-primary">@Model.EmployeeNumber</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employment Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-briefcase me-2"></i>Employment Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-group">
+                        <label class="info-label">Position</label>
+                        <p class="info-value">
+                            <span class="badge bg-info">@Model.Position</span>
+                        </p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Hire Date</label>
+                        <p class="info-value">@Model.HireDate.ToString("MMMM dd, yyyy")</p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Years of Service</label>
+                        <p class="info-value">@Math.Round((DateTime.Now - Model.HireDate).TotalDays / 365.25, 1) years</p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Annual Salary</label>
+                        <p class="info-value text-success fw-bold">$@Model.Salary.ToString("N2")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assignments & Relations -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-diagram-3 me-2"></i>Assignments & Relations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-group">
+                        <label class="info-label">Department</label>
+                        <p class="info-value">
+                            @if (Model.Department != null)
+                            {
+                                <span class="badge bg-success">
+                                    <i class="bi bi-building me-1"></i>@Model.Department.Name
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Not assigned</span>
+                            }
+                        </p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Project</label>
+                        <p class="info-value">
+                            @if (Model.Project != null)
+                            {
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-kanban me-1"></i>@Model.Project.Name
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Not assigned</span>
+                            }
+                        </p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Manager</label>
+                        <p class="info-value">
+                            @if (Model.Manager != null)
+                            {
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-person-badge me-1"></i>@Model.Manager.FirstName @Model.Manager.LastName
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">No manager assigned</span>
+                            }
+                        </p>
+                    </div>
+                    <div class="info-group">
+                        <label class="info-label">Training</label>
+                        <p class="info-value">
+                            @if (Model.Training != null)
+                            {
+                                <span class="badge bg-primary">
+                                    <i class="bi bi-mortarboard me-1"></i>@Model.Training.Name
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">No training assigned</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes & Additional Information -->
+        @if (!string.IsNullOrWhiteSpace(Model.Notes))
+        {
+            <div class="col-12 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-journal-text me-2"></i>Notes & Additional Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">@Model.Notes</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- System Information -->
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>System Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="info-group">
+                                <label class="info-label">Created On</label>
+                                <p class="info-value">@Model.CreatedOn.ToString("MMM dd, yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-group">
+                                <label class="info-label">Created By</label>
+                                <p class="info-value">@Model.CreatedBy</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-group">
+                                <label class="info-label">Last Modified</label>
+                                <p class="info-value">@(Model.ModifiedOn?.ToString("MMM dd, yyyy HH:mm") ?? "Never")</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-group">
+                                <label class="info-label">Modified By</label>
+                                <p class="info-value">@(Model.ModifiedBy ?? "N/A")</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-section">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-4">
+                <h5 class="mb-3">Actions</h5>
+                <div class="btn-group-custom">
+                    <a asp-action="Edit" asp-route-id="@Model.ID" class="btn btn-warning btn-lg me-3">
+                        <i class="bi bi-pencil me-2"></i>Edit Employee
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.ID" class="btn btn-danger btn-lg me-3">
+                        <i class="bi bi-trash me-2"></i>Delete Employee
+                    </a>
+                    <a asp-action="ListAll" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-list me-2"></i>View All Employees
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Employee Not Found -->
+    <div class="text-center py-5">
+        <i class="bi bi-person-x display-1 text-muted"></i>
+        <h3 class="mt-3">Employee Not Found</h3>
+        <p class="text-muted">The employee you're looking for doesn't exist or has been removed.</p>
+        <a asp-action="ListAll" class="btn btn-primary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Employee List
+        </a>
+    </div>
+}
+
+<!-- Custom Styles -->
+<style>
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    /* Employee Profile Header */
+    .employee-profile-header {
+        margin-bottom: 2rem;
+    }
+
+    .profile-image-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .profile-image {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #e2e8f0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-placeholder {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 3rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin: 0 auto;
+    }
+
+    .employee-number {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .employee-name {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .employee-position {
+        font-size: 1.25rem;
+        color: #718096;
+        margin-bottom: 1rem;
+    }
+
+    .employee-badges .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .employee-quick-stats {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .stat-item h4 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0;
+    }
+
+    /* Information Cards */
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+        }
+
+    .card-header {
+        border-bottom: none;
+        font-weight: 600;
+    }
+
+    .info-group {
+        margin-bottom: 1.5rem;
+    }
+
+        .info-group:last-child {
+            margin-bottom: 0;
+        }
+
+    .info-label {
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        color: #2d3748;
+        margin-bottom: 0;
+        line-height: 1.5;
+    }
+
+        .info-value a {
+            color: #667eea;
+            transition: color 0.2s ease;
+        }
+
+            .info-value a:hover {
+                color: #5a67d8;
+            }
+
+    /* Action Section */
+    .action-section {
+        margin-top: 3rem;
+    }
+
+    .btn-group-custom {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    /* Responsive Design */
+    
+
+    /* Animation */
+    .employee-profile-header, .card {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    
+
+    /* Badge Styling */
+    .badge {
+        border-radius: 8px;
+        font-weight: 500;
+    }
+
+        .badge i {
+            margin-right: 0.25rem;
+        }
+</style>
+

@@ -1,0 +1,528 @@
+﻿@model CRUD_Operation.Models.Employee
+@{
+    ViewData["Title"] = "Delete Employee";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="page-title text-danger">
+                <i class="bi bi-trash me-3"></i>
+                Delete Employee
+            </h1>
+            <p class="text-muted mb-0">Confirm deletion of employee record - This action cannot be undone</p>
+        </div>
+        <div class="page-actions">
+            <a asp-action="Details" asp-route-id="@Model.ID" class="btn btn-info btn-lg">
+                <i class="bi bi-eye me-2"></i>View Details
+            </a>
+            <a asp-action="ListAll" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Warning Alert -->
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong>Warning!</strong> You are about to delete this employee record. This action will mark the employee as deleted and cannot be undone.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+<!-- Employee Information Display -->
+<div class="delete-container">
+    <!-- Employee Profile Summary -->
+    <div class="card border-danger shadow-sm mb-4">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-person-x me-2"></i>Employee to be Deleted
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-3 text-center">
+                    <div class="profile-image-container">
+                        @if (!string.IsNullOrEmpty(Model.ImagePath))
+                        {
+                            <img src="@Model.ImagePath" alt="@Model.FirstName @Model.LastName" class="profile-image-delete" />
+                        }
+                        else
+                        {
+                            <div class="profile-placeholder-delete">
+                                @Model.FirstName.First()@Model.LastName.First()
+                            </div>
+                        }
+                    </div>
+                    <div class="mt-3">
+                        <span class="badge bg-danger employee-number-delete">@Model.EmployeeNumber</span>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="employee-summary">
+                        <h2 class="employee-name-delete">@Model.FirstName @Model.LastName</h2>
+                        <p class="employee-position-delete">
+                            <i class="bi bi-briefcase me-2"></i>@Model.Position
+                        </p>
+                        <div class="employee-info-grid">
+                            <div class="info-item">
+                                <strong>Email:</strong> @Model.Email
+                            </div>
+                            <div class="info-item">
+                                <strong>Phone:</strong> @Model.PhoneNumber
+                            </div>
+                            <div class="info-item">
+                                <strong>Department:</strong> @(Model.Department?.Name ?? "Not Assigned")
+                            </div>
+                            <div class="info-item">
+                                <strong>Hire Date:</strong> @Model.HireDate.ToString("MMM dd, yyyy")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Information -->
+    <div class="row">
+        <!-- Personal Details -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-muted">
+                        <i class="bi bi-person me-2"></i>Personal Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="info-list">
+                        <div class="info-row">
+                            <span class="info-label">Full Name:</span>
+                            <span class="info-value">@Model.FirstName @Model.LastName</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Employee Number:</span>
+                            <span class="info-value">@Model.EmployeeNumber</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Age:</span>
+                            <span class="info-value">@Model.Age years</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Date of Birth:</span>
+                            <span class="info-value">@Model.DateOfBirth.ToString("MMM dd, yyyy")</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Address:</span>
+                            <span class="info-value">@(Model.Address ?? "Not provided")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employment Details -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-muted">
+                        <i class="bi bi-briefcase me-2"></i>Employment Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="info-list">
+                        <div class="info-row">
+                            <span class="info-label">Position:</span>
+                            <span class="info-value">@Model.Position</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Hire Date:</span>
+                            <span class="info-value">@Model.HireDate.ToString("MMM dd, yyyy")</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Years of Service:</span>
+                            <span class="info-value">@Math.Round((DateTime.Now - Model.HireDate).TotalDays / 365.25, 1) years</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Annual Salary:</span>
+                            <span class="info-value text-success">$@Model.Salary.ToString("N0")</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Department:</span>
+                            <span class="info-value">@(Model.Department?.Name ?? "Not assigned")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assignments & Relations -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-muted">
+                        <i class="bi bi-diagram-3 me-2"></i>Current Assignments
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="info-list">
+                        <div class="info-row">
+                            <span class="info-label">Project:</span>
+                            <span class="info-value">
+                                @if (Model.Project != null)
+                                {
+                                    <span class="badge bg-warning">@Model.Project.Name</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not assigned</span>
+                                }
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Manager:</span>
+                            <span class="info-value">
+                                @if (Model.Manager != null)
+                                {
+                                    <span class="badge bg-info">@Model.Manager.FirstName @Model.Manager.LastName</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No manager assigned</span>
+                                }
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Training:</span>
+                            <span class="info-value">
+                                @if (Model.Training != null)
+                                {
+                                    <span class="badge bg-primary">@Model.Training.Name</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No training assigned</span>
+                                }
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-muted">
+                        <i class="bi bi-info-circle me-2"></i>System Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="info-list">
+                        <div class="info-row">
+                            <span class="info-label">Created On:</span>
+                            <span class="info-value">@Model.CreatedOn.ToString("MMM dd, yyyy HH:mm")</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Created By:</span>
+                            <span class="info-value">@Model.CreatedBy</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Last Modified:</span>
+                            <span class="info-value">@(Model.ModifiedOn?.ToString("MMM dd, yyyy HH:mm") ?? "Never")</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Modified By:</span>
+                            <span class="info-value">@(Model.ModifiedBy ?? "N/A")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes Section (if exists) -->
+    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+    {
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-muted">
+                            <i class="bi bi-journal-text me-2"></i>Notes
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">@Model.Notes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Confirmation Section -->
+    <div class="confirmation-section">
+        <div class="card border-danger shadow">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Confirm Deletion
+                </h5>
+            </div>
+            <div class="card-body text-center py-4">
+                <div class="confirmation-text mb-4">
+                    <h5 class="text-danger">Are you sure you want to delete this employee?</h5>
+                    <p class="text-muted mb-0">
+                        This action will mark <strong>@Model.FirstName @Model.LastName</strong> as deleted.
+                        The record will be preserved in the system but marked as inactive.
+                    </p>
+                </div>
+
+                <!-- Deletion Form -->
+                <form asp-action="Delete" method="post" class="delete-form" onsubmit="return confirmDeletion()">
+                    <input type="hidden" asp-for="ID" />
+                    <div class="btn-group-delete">
+                        <button type="submit" class="btn btn-danger btn-lg me-3">
+                            <i class="bi bi-trash me-2"></i>Yes, Delete Employee
+                        </button>
+                        <a asp-action="Details" asp-route-id="@Model.ID" class="btn btn-outline-info btn-lg me-3">
+                            <i class="bi bi-eye me-2"></i>View Details Instead
+                        </a>
+                        <a asp-action="Edit" asp-route-id="@Model.ID" class="btn btn-outline-warning btn-lg me-3">
+                            <i class="bi bi-pencil me-2"></i>Edit Instead
+                        </a>
+                        <a asp-action="ListAll" class="btn btn-secondary btn-lg">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    /* Delete Container */
+    .delete-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Profile Image */
+    .profile-image-delete {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #dc3545;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    }
+
+    .profile-placeholder-delete {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 2.5rem;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        margin: 0 auto;
+    }
+
+    .employee-number-delete {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+    }
+
+    /* Employee Summary */
+    .employee-name-delete {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .employee-position-delete {
+        font-size: 1.25rem;
+        color: #718096;
+        margin-bottom: 1rem;
+    }
+
+    .employee-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    .info-item {
+        font-size: 0.95rem;
+    }
+
+        .info-item strong {
+            color: #4a5568;
+        }
+
+    /* Information Lists */
+    .info-list {
+        space-y: 0.75rem;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+    .info-label {
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 0.9rem;
+    }
+
+    .info-value {
+        color: #2d3748;
+        font-size: 0.95rem;
+        text-align: right;
+    }
+
+    /* Cards */
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+        }
+
+    .card-header {
+        border-bottom: none;
+        padding: 1rem 1.5rem;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    /* Confirmation Section */
+    .confirmation-section {
+        margin-top: 3rem;
+    }
+
+    .confirmation-text {
+        padding: 1rem;
+        background: #fff5f5;
+        border-radius: 10px;
+        border: 1px solid #fed7d7;
+    }
+
+    .btn-group-delete {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        border-radius: 8px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+    /* Alert Styling */
+    .alert-danger {
+        border-radius: 12px;
+        border-left: 5px solid #dc3545;
+    }
+
+    
+   
+
+    /* Badge Styling */
+    .badge {
+        border-radius: 6px;
+        font-weight: 500;
+        padding: 0.5rem 0.75rem;
+    }
+</style>
+
+<!-- JavaScript for Confirmation -->
+<script>
+    function confirmDeletion() {
+        const employeeName = '@Model.FirstName @Model.LastName';
+        const confirmMessage = `Are you absolutely sure you want to delete ${employeeName}?\n\nThis action will mark the employee as deleted and cannot be undone.\n\nType "DELETE" to confirm:`;
+
+        const userInput = prompt(confirmMessage);
+
+        if (userInput === "DELETE") {
+            return confirm(`Final confirmation: Delete ${employeeName}?`);
+        } else if (userInput !== null) {
+            alert("Deletion cancelled. You must type 'DELETE' exactly to confirm.");
+        }
+
+        return false;
+    }
+
+    // Auto-focus on page load for accessibility
+    document.addEventListener('DOMContentLoaded', function() {
+        // Warn user before leaving page
+        let formSubmitted = false;
+
+        document.querySelector('.delete-form').addEventListener('submit', function() {
+            formSubmitted = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (!formSubmitted) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    });
+</script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

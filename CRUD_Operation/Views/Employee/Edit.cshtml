@@ -1,0 +1,560 @@
+﻿@model CRUD_Operation.Controllers.EditEmployeeViewModel
+@{
+    ViewData["Title"] = "Edit Employee";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-pencil-square me-3"></i>
+                Edit Employee
+            </h1>
+            <p class="text-muted mb-0">Update employee information - ID: @Model.ID</p>
+        </div>
+        <div class="page-actions">
+            <a asp-action="Details" asp-route-id="@Model.ID" class="btn btn-info btn-lg">
+                <i class="bi bi-eye me-2"></i>View Details
+            </a>
+            <a asp-action="ListAll" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Employee Edit Form -->
+<div class="form-container">
+    <form asp-action="Edit" method="post" class="employee-form" novalidate>
+        <input asp-for="ID" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <!-- Personal Information Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-person me-2"></i>Personal Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Profile Image -->
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="ImagePath" class="form-label">Profile Image URL</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-image"></i></span>
+                            <input asp-for="ImagePath" class="form-control" placeholder="@Model.ImagePath" />
+                        </div>
+                        <span asp-validation-for="ImagePath" class="text-danger"></span>
+                        <small class="form-text text-muted">Optional: Enter a URL for the employee's profile picture</small>
+                    </div>
+
+                    <!-- Employee Number -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="EmployeeNumber" class="form-label required">Employee Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                            <input asp-for="EmployeeNumber" class="form-control" placeholder="@Model.EmployeeNumber" required />
+                        </div>
+                        <span asp-validation-for="EmployeeNumber" class="text-danger"></span>
+                    </div>
+
+                    <!-- First Name -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="FirstName" class="form-label required">First Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input asp-for="FirstName" class="form-control" placeholder="@Model.FirstName" required />
+                        </div>
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="LastName" class="form-label required">Last Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input asp-for="LastName" class="form-control" placeholder="@Model.LastName" required />
+                        </div>
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+
+                    <!-- Date of Birth -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DateOfBirth" class="form-label required">Date of Birth</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                            <input asp-for="DateOfBirth" type="date" class="form-control" required />
+                        </div>
+                        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="Address" class="form-label">Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                            <textarea asp-for="Address" class="form-control" rows="2" placeholder="@Model.Address"></textarea>
+                        </div>
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-envelope me-2"></i>Contact Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Email -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Email" class="form-label required">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="@Model.Email" required />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PhoneNumber" class="form-label required">Phone Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                            <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="@Model.PhoneNumber" required />
+                        </div>
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employment Information Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="bi bi-briefcase me-2"></i>Employment Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Position -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Position" class="form-label required">Position</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-briefcase"></i></span>
+                            <input asp-for="Position" class="form-control" placeholder="@Model.Position" required />
+                        </div>
+                        <span asp-validation-for="Position" class="text-danger"></span>
+                    </div>
+
+                    <!-- Hire Date -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="HireDate" class="form-label required">Hire Date</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                            <input asp-for="HireDate" type="date" class="form-control" required />
+                        </div>
+                        <span asp-validation-for="HireDate" class="text-danger"></span>
+                    </div>
+
+                    <!-- Salary -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Salary" class="form-label required">Annual Salary</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                            <input asp-for="Salary" type="number" step="0.01" min="0" class="form-control" placeholder="@Model.Salary.ToString("F2")" required />
+                        </div>
+                        <span asp-validation-for="Salary" class="text-danger"></span>
+                    </div>
+
+                    <!-- Age (Read-only, calculated from DOB) -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Age</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
+                            <input type="number" id="calculatedAge" class="form-control" readonly placeholder="Will be calculated from DOB" />
+                        </div>
+                        <small class="form-text text-muted">Automatically calculated from Date of Birth</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assignments Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-diagram-3 me-2"></i>Assignments & Relations
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Department -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DepartmentID" class="form-label">Department</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-building"></i></span>
+                            <select asp-for="DepartmentID" class="form-select" asp-items="ViewBag.Departments">
+                                <option value="">-- Select Department (Optional) --</option>
+                            </select>
+                        </div>
+                        <span asp-validation-for="DepartmentID" class="text-danger"></span>
+                    </div>
+
+                    <!-- Project -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ProjectID" class="form-label">Project</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-kanban"></i></span>
+                            <select asp-for="ProjectID" class="form-select" asp-items="ViewBag.Projects">
+                                <option value="">-- Select Project (Optional) --</option>
+                            </select>
+                        </div>
+                        <span asp-validation-for="ProjectID" class="text-danger"></span>
+                    </div>
+
+                    <!-- Manager -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="MangerID" class="form-label">Manager</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                            <select asp-for="MangerID" class="form-select" asp-items="ViewBag.Managers">
+                                <option value="">-- Select Manager (Optional) --</option>
+                            </select>
+                        </div>
+                        <span asp-validation-for="MangerID" class="text-danger"></span>
+                    </div>
+
+                    <!-- Training -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="TrainingID" class="form-label">Training Program</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-mortarboard"></i></span>
+                            <select asp-for="TrainingID" class="form-select" asp-items="ViewBag.Trainings">
+                                <option value="">-- Select Training (Optional) --</option>
+                            </select>
+                        </div>
+                        <span asp-validation-for="TrainingID" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-journal-text me-2"></i>Additional Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Notes -->
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="Notes" class="form-label">Notes</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-journal-text"></i></span>
+                            <textarea asp-for="Notes" class="form-control" rows="4" placeholder="@Model.Notes"></textarea>
+                        </div>
+                        <span asp-validation-for="Notes" class="text-danger"></span>
+                        <small class="form-text text-muted">Maximum 2000 characters</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-4">
+                    <div class="btn-group-custom">
+                        <button type="submit" class="btn btn-success btn-lg me-3">
+                            <i class="bi bi-check-circle me-2"></i>Update Employee
+                        </button>
+                        <a asp-action="Details" asp-route-id="@Model.ID" class="btn btn-info btn-lg me-3">
+                            <i class="bi bi-eye me-2"></i>View Details
+                        </a>
+                        <a asp-action="ListAll" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    /* Form Container */
+    .form-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .employee-form {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Card Styling */
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+        }
+
+    .card-header {
+        border-bottom: none;
+        font-weight: 600;
+        padding: 1.5rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    /* Form Controls */
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+    }
+
+        .form-label.required::after {
+            content: " *";
+            color: #e53e3e;
+        }
+
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+    .input-group-text {
+        background: #f7fafc;
+        border: 2px solid #e2e8f0;
+        border-right: none;
+        color: #4a5568;
+        font-weight: 500;
+    }
+
+    .input-group .form-control, .input-group .form-select {
+        border-left: none;
+    }
+
+    .input-group:focus-within .input-group-text {
+        border-color: #667eea;
+        background: #edf2f7;
+    }
+
+    /* Validation Styling */
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .form-control.is-invalid, .form-select.is-invalid {
+        border-color: #e53e3e;
+    }
+
+    .alert-danger {
+        border-radius: 10px;
+        margin-bottom: 2rem;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        margin-top: 3rem;
+    }
+
+    .btn-group-custom {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        border-radius: 8px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+    /* Helper Text */
+    .form-text {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Age Calculation Input */
+    #calculatedAge {
+        background-color: #f8f9fa;
+        color: #6c757d;
+    }
+
+   
+
+    
+</style>
+
+<!-- JavaScript for Age Calculation and Form Enhancement -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dobInput = document.getElementById('DateOfBirth');
+        const ageInput = document.getElementById('calculatedAge');
+
+        function calculateAge() {
+            const dob = new Date(dobInput.value);
+            if (dob && dobInput.value) {
+                const today = new Date();
+                let age = today.getFullYear() - dob.getFullYear();
+                const monthDiff = today.getMonth() - dob.getMonth();
+
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+
+                ageInput.value = age >= 0 ? age : '';
+            } else {
+                ageInput.value = '';
+            }
+        }
+
+        // Calculate age when date of birth changes
+        dobInput.addEventListener('change', calculateAge);
+        dobInput.addEventListener('input', calculateAge);
+
+        // Calculate age on page load
+        calculateAge();
+
+        // Form validation enhancement
+        const form = document.querySelector('.employee-form');
+
+        // Preserve field values on error
+        const preserveFieldValues = function() {
+            const formData = new FormData(form);
+            localStorage.setItem('employeeEditFormData', JSON.stringify(Object.fromEntries(formData)));
+        };
+
+        // Restore field values from localStorage if there was an error
+        const restoreFieldValues = function() {
+            const savedData = localStorage.getItem('employeeEditFormData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                for (const [key, value] of Object.entries(data)) {
+                    const field = form.querySelector(`[name="${key}"]`);
+                    if (field && field.type !== 'hidden') {
+                        field.value = value;
+                    }
+                }
+                localStorage.removeItem('employeeEditFormData');
+            }
+        };
+
+        // Enhanced form validation
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please fill in all required fields.');
+                return false;
+            } else {
+                preserveFieldValues();
+            }
+        });
+
+        // Remove invalid class on input and preserve values
+        const inputs = form.querySelectorAll('.form-control, .form-select');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+            });
+        });
+
+        // Restore values if this is a failed submission
+        if (document.querySelector('.text-danger')) {
+            restoreFieldValues();
+        }
+
+        // Clear localStorage on successful form submission
+        window.addEventListener('beforeunload', function() {
+            if (!document.querySelector('.text-danger')) {
+                localStorage.removeItem('employeeEditFormData');
+            }
+        });
+    });
+</script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+
