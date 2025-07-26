@@ -20,11 +20,9 @@ namespace CRUD_Operation.Controllers
         {
             var departments = db.Departments
                 .Where(d => !d.IsDeleted)
-                .Include(d => d.EmployeesList)
+                .Include(d => d.EmployeesList!.Where(e => !e.IsDeleted))
                 .Take(6) // Limit for the landing page
                 .ToList();
-
-            
 
             // Get some statistics for the dashboard
             ViewBag.TotalDepartments = db.Departments.Count(d => !d.IsDeleted);
@@ -40,10 +38,8 @@ namespace CRUD_Operation.Controllers
         {
             var departments = db.Departments
                 .Where(d => !d.IsDeleted)
-                .Include(d => d.EmployeesList)
+                .Include(d => d.EmployeesList!.Where(e => !e.IsDeleted))
                 .ToList();
-
-            
 
             return View("ListAll", departments);
         }
@@ -58,10 +54,10 @@ namespace CRUD_Operation.Controllers
             if (department == null)
                 return NotFound();
 
-           
             return View(department);
         }
 
+       
         // GET: Department/Create
         public IActionResult Create()
         {
@@ -172,12 +168,14 @@ namespace CRUD_Operation.Controllers
         {
             var department = db.Departments
                 .Include(d => d.EmployeesList!.Where(e => !e.IsDeleted))
-                .FirstOrDefault(d => d.ID == id);
+                .FirstOrDefault(d => d.ID == id && !d.IsDeleted);
 
-            if (department == null || department.IsDeleted)
+            if (department == null)
                 return NotFound();
 
-            
+            // No need to manually set CountEmployees - it's automatically calculated
+            // from the EmployeesList navigation property
+
             return View(department);
         }
 
@@ -189,7 +187,7 @@ namespace CRUD_Operation.Controllers
             try
             {
                 var department = db.Departments
-                    .Include(d => d.EmployeesList)
+                    .Include(d => d.EmployeesList!.Where(e => !e.IsDeleted))
                     .FirstOrDefault(d => d.ID == id);
 
                 if (department == null || department.IsDeleted)
@@ -198,24 +196,36 @@ namespace CRUD_Operation.Controllers
                     return RedirectToAction(nameof(ListAll));
                 }
 
-                // Get employee count
-                var employeeCount = db.Employees.Count(e => e.DepartmentID == id && !e.IsDeleted);
+                // Get the employee count from the computed property
+                var employeeCount = department.CountEmployees;
 
                 // If department has employees and force delete is not checked
                 if (employeeCount > 0 && !forceDelete)
                 {
-                    TempData["Error"] = $"Department has {employeeCount} active employee(s). Check 'Force Delete' to proceed or reassign employees first.";
+                    TempData["Error"] = $"Department '{department.Name}' has {employeeCount} active employee(s). Check 'Force Delete' to proceed or reassign employees first.";
                     return RedirectToAction(nameof(Delete), new { id });
                 }
 
-                // If force delete or no employees, proceed with deletion
+                // If force delete is checked and there are employees, unassign them
                 if (employeeCount > 0 && forceDelete)
                 {
-                    // Unassign employees from this department
+                    // Get employees directly from database to ensure we have the latest data
                     var employees = db.Employees.Where(e => e.DepartmentID == id && !e.IsDeleted).ToList();
+
+                    // Use reflection to set DepartmentID since it has private setter
+                    var departmentIdProperty = typeof(Employee).GetProperty("DepartmentID");
+
                     foreach (var employee in employees)
                     {
-                        employee.DepartmentID = null; // Unassign department
+                        if (departmentIdProperty != null && departmentIdProperty.CanWrite)
+                        {
+                            departmentIdProperty.SetValue(employee, null);
+                        }
+                        else
+                        {
+                            // Fallback: Use direct field assignment if available
+                            employee.DepartmentID = null; // This will work if it's public set
+                        }
                     }
                 }
 
@@ -224,7 +234,7 @@ namespace CRUD_Operation.Controllers
                 department.DeleteTime = DateTime.Now;
 
                 // Save all changes
-                db.SaveChanges();
+                var changesSaved = db.SaveChanges();
 
                 // Set success message
                 if (employeeCount > 0 && forceDelete)

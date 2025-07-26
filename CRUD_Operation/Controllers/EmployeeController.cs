@@ -169,57 +169,20 @@ namespace CRUD_Operation.Controllers
             return View(employee);
         }
 
-        // POST: Department/Delete/5
+        // POST: Employee/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            try
-            {
-                var department = db.Departments
-                    .Include(d => d.EmployeesList)
-                    .FirstOrDefault(d => d.ID == id);
+            var employee = db.Employees.Find(id);
+            if (employee == null || employee.IsDeleted)
+                return NotFound();
 
-                if (department == null || department.IsDeleted)
-                {
-                    TempData["Error"] = "Department not found or already deleted.";
-                    return RedirectToAction(nameof(ListAll));
-                }
-
-                // Unassign employees from this department
-                var employeesToUnassign = db.Employees
-                    .Where(e => e.DepartmentID == id && !e.IsDeleted)
-                    .ToList();
-
-                foreach (var employee in employeesToUnassign)
-                {
-                    employee.DepartmentID = null; // Unassign department
-                }
-
-                // Soft delete the department
-                department.IsDeleted = true;
-                department.DeleteTime = DateTime.Now;
-
-                db.SaveChanges();
-
-                if (employeesToUnassign.Any())
-                {
-                    TempData["Success"] = $"Department deleted successfully! {employeesToUnassign.Count} employee(s) were unassigned from the department.";
-                }
-                else
-                {
-                    TempData["Success"] = "Department deleted successfully!";
-                }
-
-                return RedirectToAction(nameof(ListAll));
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = $"An error occurred while deleting the department: {ex.Message}";
-                return RedirectToAction(nameof(Delete), new { id });
-            }
+            employee.IsDeleted = true;
+            employee.DeleteTime = DateTime.Now;
+            db.SaveChanges();
+            return RedirectToAction(nameof(ListAll));
         }
-
 
 
         // GET: Employee/Edit/5
