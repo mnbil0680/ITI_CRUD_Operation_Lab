@@ -5,6 +5,8 @@ namespace CRUD_Operation.Database
 {
     public class AppDBContext : DbContext
     {
+        public AppDBContext(DbContextOptions<AppDBContext> options) : base(options) { }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-GFSDRRT; Initial Catalog=CRUD_ITI; Integrated Security=True; Encrypt=False; Trust Server Certificate=True");

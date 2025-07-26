@@ -88,10 +88,10 @@ namespace CRUD_Operation.Models
         public string? ModifiedBy { get; private set; }
 
         [Display(Name = "Is Deleted")]
-        public bool IsDeleted { get; private set; }
+        public bool IsDeleted { get; set; }
 
         [Display(Name = "Delete On Date")]
-        public DateTime? DeleteTime { get; private set; }
+        public DateTime? DeleteTime { get; set; }
 
         // Relations  
         [ForeignKey("Project")]
@@ -113,5 +113,196 @@ namespace CRUD_Operation.Models
         [StringLength(100)]
         public int? TrainingID { get; set; }
         public Training? Training { get; set; }
+        // CTORs
+
+        public Employee(
+            
+            string imagePath,
+            string employeeNumber,
+            string firstName,
+            string lastName,
+            string email,
+            string phoneNumber,
+            string? address,
+            DateTime dateOfBirth,
+            string position,
+            DateTime hireDate,
+            double salary,
+            string? notes,
+            DateTime createdOn,
+            string createdBy,
+            DateTime? modifiedOn,
+            string? modifiedBy,
+            bool isDeleted,
+            DateTime? deleteTime,
+            int? projectID,
+            Project? project,
+            int? mangerID,
+            Manager? manager,
+            int? departmentID,
+            Department? department,
+            int? trainingID,
+            Training? training
+        )
+        {
+            
+            ImagePath = imagePath;
+            EmployeeNumber = employeeNumber;
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            PhoneNumber = phoneNumber;
+            Address = address;
+            Age = CalcAge(dateOfBirth);
+            DateOfBirth = dateOfBirth;
+            Position = position;
+            HireDate = hireDate;
+            Salary = salary;
+            Notes = notes;
+            CreatedOn = createdOn;
+            CreatedBy = createdBy;
+            ModifiedOn = modifiedOn;
+            ModifiedBy = modifiedBy;
+            IsDeleted = isDeleted;
+            DeleteTime = deleteTime;
+            ProjectID = projectID;
+            Project = project;
+            MangerID = mangerID;
+            Manager = manager;
+            DepartmentID = departmentID;
+            Department = department;
+            TrainingID = trainingID;
+            Training = training;
+        }
+
+        // Parameterless constructor for EF Core and model binding
+        public Employee()
+        {
+        }
+
+        // CTORs
+        public Employee(
+            string imagePath,
+            string employeeNumber,
+            string firstName,
+            string lastName,
+            string email,
+            string phoneNumber,
+            string? address,
+            DateTime dateOfBirth,
+            string position,
+            DateTime hireDate,
+            double salary,
+            string? notes,
+            
+            int? projectID,
+            Project? project,
+            int? mangerID,
+            Manager? manager,
+            int? departmentID,
+            Department? department,
+            int? trainingID,
+            Training? training
+        )
+        {
+            // From Parameters
+            ImagePath = imagePath;
+            EmployeeNumber = employeeNumber;
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            PhoneNumber = phoneNumber;
+            Address = Address;
+            DateOfBirth = dateOfBirth;
+            Age = CalcAge(dateOfBirth);
+            Position = position;
+            HireDate = hireDate;
+            Salary = salary;
+            Notes = notes;
+            DeleteTime = null;
+
+            // Default
+            CreatedOn = DateTime.Now;
+            CreatedBy = "Mohamed Nabil";
+            ModifiedOn = null;
+            ModifiedBy = "None";
+            IsDeleted = false;
+
+            ProjectID = projectID;
+            Project = project;
+            MangerID = mangerID;
+            Manager = manager;
+            DepartmentID = departmentID;
+            Department = department;
+            TrainingID = trainingID;
+            Training = training;
+
+
+
+
+
+        }
+        public int CalcAge(DateTime BirthDate)
+        {
+            if (BirthDate == default)
+                return 0;
+
+            var today = DateTime.Today;
+            var age = today.Year - BirthDate.Year;
+            if (BirthDate.Date > today.AddYears(-age)) age--;
+            return age;
+        }
+        public Employee(
+    string imagePath,
+    string employeeNumber,
+    string firstName,
+    string lastName,
+    string email,
+    string phoneNumber,
+    string? address,
+    DateTime dateOfBirth,
+    string position,
+    DateTime hireDate,
+    double salary,
+    string? notes
+)
+        {
+            // From Parameters
+            ImagePath = imagePath;
+            EmployeeNumber = employeeNumber;
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            PhoneNumber = phoneNumber;
+            Address = Address;
+            DateOfBirth = dateOfBirth;
+            Age = CalcAge(dateOfBirth);
+            Position = position;
+            HireDate = hireDate;
+            Salary = salary;
+            Notes = notes;
+            DeleteTime = null;
+
+            // Default
+            CreatedOn = DateTime.Now;
+            CreatedBy = "Mohamed Nabil";
+            ModifiedOn = null;
+            ModifiedBy = "None";
+            IsDeleted = false;
+
+            ProjectID = null;
+            Project =      null;
+            MangerID =     null;
+            Manager =      null;
+            DepartmentID = null;
+            Department =   null;
+            TrainingID =   null;
+            Training =     null;
+
+
+
+
+
+        }
     }
 }

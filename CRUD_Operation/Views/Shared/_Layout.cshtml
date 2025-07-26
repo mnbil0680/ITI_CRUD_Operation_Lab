@@ -3,48 +3,432 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CRUD_Operation</title>
+    <title>@ViewData["Title"] - CRUD Management System</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CRUD_Operation.styles.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="modern-layout">
+    <!-- Top Header Bar -->
+    <div class="top-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 text-center py-2">
+                    <small class="text-muted">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Secure Enterprise Management System | Welcome to CRUD Operations
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation -->
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CRUD_Operation</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+        <nav class="navbar navbar-expand-lg custom-navbar sticky-top">
+            <div class="container-fluid px-4">
+                <!-- Brand Logo -->
+                <a class="navbar-brand brand-logo" asp-area="" asp-controller="Home" asp-action="Index">
+                    <div class="logo-container">
+                        <div class="logo-icon">
+                            <i class="bi bi-database-gear"></i>
+                        </div>
+                        <div class="logo-text">
+                            <span class="logo-main">CRUD</span>
+                            <span class="logo-sub">Management</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Mobile Toggle -->
+                <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <!-- Navigation Content -->
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <!-- Main Navigation -->
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link nav-item-custom" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house"></i>
+                                <span>Home</span>
+                            </a>
                         </li>
+
+                        <!-- Management Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle nav-item-custom" href="#" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-grid-3x3-gap"></i>
+                                <span>Management</span>
+                            </a>
+                            <ul class="dropdown-menu custom-dropdown">
+                                <li>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Employee" asp-action="Index">
+                                        <div class="dropdown-icon bg-primary">
+                                            <i class="bi bi-people"></i>
+                                        </div>
+                                        <div class="dropdown-content">
+                                            <strong>Employees</strong>
+                                            <small>Manage employee records</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Department" asp-action="Index">
+                                        <div class="dropdown-icon bg-success">
+                                            <i class="bi bi-building"></i>
+                                        </div>
+                                        <div class="dropdown-content">
+                                            <strong>Departments</strong>
+                                            <small>Organize departments</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Project" asp-action="Index">
+                                        <div class="dropdown-icon bg-warning">
+                                            <i class="bi bi-kanban"></i>
+                                        </div>
+                                        <div class="dropdown-content">
+                                            <strong>Projects</strong>
+                                            <small>Track project progress</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Training" asp-action="Index">
+                                        <div class="dropdown-icon bg-info">
+                                            <i class="bi bi-mortarboard"></i>
+                                        </div>
+                                        <div class="dropdown-content">
+                                            <strong>Training</strong>
+                                            <small>Learning programs</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Manager" asp-action="Index">
+                                        <div class="dropdown-icon bg-danger">
+                                            <i class="bi bi-person-badge"></i>
+                                        </div>
+                                        <div class="dropdown-content">
+                                            <strong>Managers</strong>
+                                            <small>Management hierarchy</small>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <!-- Right Side Navigation -->
+                    <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link nav-item-custom" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="bi bi-shield-lock"></i>
+                                <span>Privacy</span>
+                            </a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - CRUD_Operation - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="container-fluid px-4">
+            <div class="content-wrapper">
+                @RenderBody()
+            </div>
+        </div>
+    </main>
+
+    <!-- Modern Footer -->
+    <footer class="modern-footer">
+        <div class="container-fluid px-4">
+            <div class="footer-content">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="footer-brand">
+                            <i class="bi bi-database-gear me-2"></i>
+                            <strong>CRUD Management System</strong>
+                        </div>
+                        <p class="footer-desc">
+                            Professional enterprise management solution for modern businesses
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <div class="footer-links">
+                            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
+                            <span class="separator">|</span>
+                            <span>&copy; 2025 CRUD System</span>
+                        </div>
+                        <div class="footer-social mt-2">
+                            <small class="text-muted">Built with ASP.NET Core & Bootstrap</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
+
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Enhanced Custom Styles -->
+    <style>
+        /* Import Modern Font */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* Top Header */
+        .top-header {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 0.85rem;
+        }
+
+        /* Custom Navbar */
+        .custom-navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+        }
+
+        /* Brand Logo */
+        .brand-logo {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .logo-main {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .logo-sub {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #718096;
+            margin-top: -2px;
+        }
+
+        /* Navigation Items */
+        .nav-item-custom {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: #4a5568;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+            .nav-item-custom:hover {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                transform: translateY(-2px);
+            }
+
+        /* Custom Mobile Toggle */
+        .custom-toggler {
+            border: none;
+            padding: 0.5rem;
+            width: 30px;
+            height: 30px;
+            position: relative;
+            background: transparent;
+        }
+
+            .custom-toggler span {
+                display: block;
+                width: 25px;
+                height: 3px;
+                background: #4a5568;
+                margin: 4px 0;
+                transition: 0.3s;
+                border-radius: 2px;
+            }
+
+        /* Enhanced Dropdown */
+        .custom-dropdown {
+            border: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            padding: 0.5rem 0;
+            min-width: 280px;
+            margin-top: 0.5rem;
+        }
+
+            .custom-dropdown .dropdown-item {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1rem 1.5rem;
+                border: none;
+                transition: all 0.3s ease;
+            }
+
+        .dropdown-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .dropdown-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .dropdown-content strong {
+                color: #2d3748;
+                font-size: 0.95rem;
+            }
+
+            .dropdown-content small {
+                color: #718096;
+                font-size: 0.8rem;
+                margin-top: 2px;
+            }
+
+        .custom-dropdown .dropdown-item:hover {
+            background: #f7fafc;
+            transform: translateX(5px);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .content-wrapper {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin: 1rem 0;
+        }
+
+        /* Modern Footer */
+        .modern-footer {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            padding: 3rem 0 2rem;
+            margin-top: auto;
+        }
+
+        .footer-brand {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-desc {
+            color: #a0aec0;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        .footer-links a {
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+            .footer-links a:hover {
+                color: white;
+            }
+
+        .separator {
+            margin: 0 0.75rem;
+            color: #718096;
+        }
+
+        /* Responsive Design */
+       
+
+      
+
+        
+
+      
+
+        
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            }
+    </style>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

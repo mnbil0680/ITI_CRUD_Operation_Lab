@@ -1,3 +1,6 @@
+using CRUD_Operation.Database;
+using Microsoft.EntityFrameworkCore;
+
 namespace CRUD_Operation
 {
     public class Program
@@ -8,6 +11,10 @@ namespace CRUD_Operation
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            // Register AppDBContext for dependency injection
+            builder.Services.AddDbContext<AppDBContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             var app = builder.Build();
 
