@@ -7,7 +7,7 @@ namespace CRUD_Operation.Database
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-GFSDRRT; Initial Catalog=MVC_Day1; Integrated Security=True; Encrypt=False; Trust Server Certificate=True");
+            optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-GFSDRRT; Initial Catalog=CRUD_ITI; Integrated Security=True; Encrypt=False; Trust Server Certificate=True");
         }
 
         public DbSet<Department> Departments { get; set; }
