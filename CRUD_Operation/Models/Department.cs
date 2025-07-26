@@ -58,7 +58,7 @@ namespace CRUD_Operation.Models
         public bool IsDeleted { get; set; }
 
         [Display(Name = "Delete On Date")]
-        public DateTime? DeleteTime { get; private set; }
+        public DateTime? DeleteTime { get;  set; }
 
 
         // Navigation Property
