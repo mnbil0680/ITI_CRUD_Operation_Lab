@@ -15,6 +15,21 @@ namespace CRUD_Operation.Models
         [StringLength(500)]
         public string ImagePath { get; private set; }
 
+        [Display(Name = "UserName")]
+        [StringLength(500)]
+        public string UserName { get; private set; }
+
+
+        [Display(Name = "UserName")]
+        [StringLength(500)]
+
+        public string Title { get; private set; }
+
+
+        [Display(Name = "UserName")]
+        [StringLength(500)]
+        public string Bio { get; private set; }
+
         [Required]
         [Display(Name = "Employee Number")]
         [StringLength(20)]
